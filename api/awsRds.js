@@ -4,7 +4,11 @@ var awsRds = express.Router();
 var mysql = require('mysql');
 var dbconfig = require('../db/config');
 
-const connection = mysql.createConnection(dbconfig);
+
+var pool = mysql.createPool(dbconfig); 
+
+awsRds.use(express.urlencoded({ extended : true }))
+
 
 awsRds.get('/' , (req , res) => {
     connection.query('SELECT * FROM contact' , (error,result) =>{
@@ -12,5 +16,7 @@ awsRds.get('/' , (req , res) => {
         console.log('DB내용 :',result)
         res.send(result);
     })
-})
+});
+
+
 module.exports = awsRds;

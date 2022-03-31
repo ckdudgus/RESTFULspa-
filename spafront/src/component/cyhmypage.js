@@ -1,26 +1,46 @@
 import React, {useState , useEffect} from 'react';
 import axios from 'axios';
 
-function Cyhmypage() {
-    const[ mytext , mytextUpdate ] = useState('세팅된 DB값');
+const Cyhmypage = (props) => {
+    let [ interviewId, interviewIdUpdate ] = useState([]);
+    const [typeData,insertDB] = useState(0);
   
-    useEffect( async () => {
+    const interviewDataSetting = async () => {
+
         axios({
-            url : '/getsend',
+            url : `/getsend?botable=${props.botable}`,
             method : 'GET'
         })
-        .then(res => {
-            mytextUpdate(res.data)
-        })
-    } , [])
-    return(
-        <div>
-            <h3>함수형 컴포넌트</h3>
-            <p>useState에 의해 컴포넌트가 새로고침된다.</p>
-            <p>get은 axios.get으로 응답받는다 : {mytext}</p>
-        </div>
-    )
+                .then(
+                    (result) => {  
+                        try{
+                            console.log(result);
+                            interviewIdUpdate([...result.data]);
+                            insertDB(result.data[result.data.length - 1].keyno);
+                        }
+                        catch(err){ console.log(err.message) }
+                    }
+                )
+                .catch( e => { console.log(e +'에러로 통신 제한') }
+                ) 
+    }
+
+     useEffect( () => {  interviewDataSetting(); } , [typeData]  )          
+        return (  
+            <div><h2>{ interviewId.length > 0 ? "사전인터뷰" : "데이터 전송 중" }</h2>
+            {
+                interviewId.map(( contant, i ) => {
+                    return(
+                        <li>
+                            <h3>{i+1} {contant.subject}</h3><div>{contant.content}</div>
+                        </li>
+                    )
+                })
+            }
+            </div>
+        );   
 
 };
+
 
 export default Cyhmypage;
